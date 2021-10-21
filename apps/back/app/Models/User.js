@@ -9,6 +9,10 @@ const Hash = use('Hash')
 const Database = use('Database')
 
 class User extends Model {
+  static get hidden () {
+    return ['password']
+  }
+
   static scopeNearBy (query, latitude, longitude, distance) {
     const haversine = "(6371 * acos(cos(radians("+latitude+")) * cos(radians(`lat`)) * cos(radians(`long`) - radians("+longitude+")) + sin(radians("+latitude+")) * sin(radians(`lat`))))"
 

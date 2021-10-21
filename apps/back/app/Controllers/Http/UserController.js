@@ -6,15 +6,18 @@ class UserController {
     return await User.all()  
   }
 
-  async store ({ request, response }) {
-    const { email, ...data } = request.post()
+  async store ({ auth, request, response }) {
+    const { email,password, ...data } = request.post()
 
     const userAlreadyExists = await User.findBy('email',email)
 
     if(!userAlreadyExists){
       try {
-        const user = await User.create({email,...data})
-        return response.status(200).json(user)
+        const user = await User.create({email,password,...data})
+
+        const {token} = await auth.attempt(email,password)
+
+        return response.status(200).json({user,token})
       } catch (error) {
         return response.status(400).json({msg:error.sqlMessage})
       }

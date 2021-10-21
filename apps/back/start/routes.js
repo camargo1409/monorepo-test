@@ -28,5 +28,6 @@ Route.post('requests','RequestController.store').middleware(['auth'])
 Route.put('requests/:id','RequestController.update')
 
 Route.post('auth','AuthController.store')
+Route.get('me','AuthController.show').middleware(['auth'])
 
 Route.get('search','SearchController.index').middleware(['auth'])
