@@ -35,7 +35,7 @@ class RequestController {
         customer_id,
         provider_accepted: false,
       })
-      .fetch()
+      .fetch();
 
     const isAlreadyOpenRequest = getOpenRequests.toJSON();
 
@@ -88,8 +88,44 @@ class RequestController {
       return response.status(200).json(updated);
     }
 
-    if(action === "hire_provider"){
+    if (action === "hire_provider") {
+      if (req.customer_id !== user_id) {
+        return response
+          .status(401)
+          .json({ msg: "you aren't the owner of this order" });
+      }
 
+      req.customer_confirmed = true;
+
+      const updated = await req.save();
+
+      return response.status(200).json(updated);
+    }
+
+    if (action === "has_arrived") {
+      if (req.post_provider_id !== user_id) {
+        return response
+          .status(401)
+          .json({ msg: "you aren't the provider of the request" });
+      }
+
+      req.has_arrived = true;
+
+      const updated = await req.save();
+
+      return response.status(200).json(updated);
+    }
+
+    if (action === "refuse") {
+      if (req.post_provider_id === user_id || req.customer_id === user_id) {
+        req.delete();
+
+        return response.status(204).json({});
+      }
+
+      return response
+        .status(401)
+        .json({ msg: "you aren't related to this order" });
     }
     
     return response.json({ id, action, req });
