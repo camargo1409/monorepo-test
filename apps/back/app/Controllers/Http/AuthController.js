@@ -1,22 +1,31 @@
-'use strict'
-const User = use('App/Models/User')
+"use strict";
+const User = use("App/Models/User");
 
 class AuthController {
-    async store({auth,request,response}){
-        const {email,password} = request.all()
+  async store({ auth, request, response }) {
+    const { email, password } = request.all();
 
-        const user = await User.findBy('email',email)
+    const user = await User.findBy("email", email);
 
-        const {token} = await auth.attempt(email,password)
+    const { token } = await auth.attempt(email, password);
 
-        return response.json({token,user})
+    return response.json({ token, user });
+  }
+
+  async show({ auth, request, response }) {
+    const user = await auth.getUser();
+
+    const userAddress = await user.addresses().fetch();
+
+    const userParsed = user.toJSON()
+    const res = {
+        ...userParsed,
+        address: userAddress.toJSON()[0]
     }
 
-    async show({auth, request, response}){
-        const user = await auth.getUser()
 
-        return response.json(user)
-    }
+    return response.json(res);
+  }
 }
 
-module.exports = AuthController
+module.exports = AuthController;

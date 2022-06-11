@@ -55,6 +55,10 @@ class User extends Model {
   provider(){
     return this.hasMany('App/Models/Request','id','post_provider_id')
   }
+
+  addresses (){
+    return this.hasMany('App/Models/Address', 'id', 'user_id')
+  }
 }
 
 module.exports = User
