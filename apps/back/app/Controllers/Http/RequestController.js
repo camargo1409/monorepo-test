@@ -9,7 +9,7 @@ class RequestController {
     if (as === "customer") {
       const requests = await Request.query()
         .where("customer_id", id)
-        .with("provider")
+        .with("provider.addresses")
         .fetch();
       return response.json(requests);
     }
@@ -17,7 +17,7 @@ class RequestController {
     if (as === "provider") {
       const requests = await Request.query()
         .where("post_provider_id", id)
-        .with("customer")
+        .with("customer.addresses")
         .fetch();
       return response.json(requests);
     }

@@ -5,7 +5,7 @@ class SearchController {
         const {distance} = request.get()
         
         const { id,lat, long } = await auth.getUser()
-        const usersNearByMe = await User.query().whereNot({id:id}).where({available:true}).nearBy(lat,long,+distance).fetch()
+        const usersNearByMe = await User.query().whereNot({id:id}).where({available:true}).nearBy(lat,long,+distance).with('addresses').fetch()
 
         return response.json(usersNearByMe)
     }
