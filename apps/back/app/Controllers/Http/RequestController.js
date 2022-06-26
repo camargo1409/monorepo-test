@@ -1,5 +1,7 @@
 "use strict";
 const Request = use("App/Models/Request");
+const Day = use("App/Models/Day");
+const ProviderAvailability = use("App/Models/ProviderAvailability");
 class RequestController {
   async index({ request, response, auth }) {
     const { as } = request.get();
@@ -10,6 +12,7 @@ class RequestController {
       const requests = await Request.query()
         .where("customer_id", id)
         .with("provider.addresses")
+        .with("providerAvailability.day")
         .fetch();
       return response.json(requests);
     }
@@ -18,6 +21,7 @@ class RequestController {
       const requests = await Request.query()
         .where("post_provider_id", id)
         .with("customer.addresses")
+        .with("providerAvailability.day")
         .fetch();
       return response.json(requests);
     }
@@ -73,7 +77,7 @@ class RequestController {
           .json({ msg: "you aren't the provider of the request" });
       }
 
-      const { service_price } = request.post();
+      const { service_price, provider_availability } = request.post();
 
       if (!service_price)
         return response
@@ -82,6 +86,18 @@ class RequestController {
 
       req.service_price = service_price;
       req.provider_accepted = true;
+
+      for (const key in provider_availability) {
+        const day = await Day.query().where({ weekday_name: key }).first();
+
+        await ProviderAvailability.create({
+          day_id: day.id,
+          request_id: id,
+          start_time: provider_availability[key].from,
+          end_time: provider_availability[key].to,
+          available: provider_availability[key].available,
+        });
+      }
 
       const updated = await req.save();
 
@@ -127,7 +143,7 @@ class RequestController {
         .status(401)
         .json({ msg: "you aren't related to this order" });
     }
-    
+
     return response.json({ id, action, req });
   }
 }
