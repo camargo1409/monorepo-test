@@ -1,0 +1,15 @@
+db:
+  image: mysql:5.7
+  restart: always
+  tty: true
+  ports:
+    - '3307:3306'
+  expose:
+    - '3306'
+  volumes:
+    - ./.docker/dbdata:/var/lib/mysql
+  environment:
+    - MYSQL_DATABASE=bethebox
+    - MYSQL_USER=admin
+    - MYSQL_PASSWORD=admin
+    - MYSQL_ROOT_PASSWORD=root
